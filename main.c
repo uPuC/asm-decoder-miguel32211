@@ -73,6 +73,21 @@ int main()
                 k|=0x80;
             }
             printf("BRNE %d\n",k);
+        }else if((instruction->op16&0xFF00)==0x9700){
+            printf("hola");
+            uint8_t Rd = ((instruction->op16>>4)&0x03);
+            Rd = 24+Rd*2;
+        
+            //uint8_t k = ((instruction->op16>>4)&0x03)| instruction->op16&0x0F;
+
+            //printf("SBIW R%d, %02X\n", Rd, k);
+        }else if((instruction->op16&0xF000) == 0xD000){
+            int16_t k = (instruction->op16&0x0FFF);
+
+            if(k&0x800){
+                k|=0xF000;
+            }
+            printf("RCALL %d\n", k);
         }
         else
         {
