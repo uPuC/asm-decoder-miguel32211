@@ -59,6 +59,13 @@ int main()
             uint8_t d = ((instruction->op16>>4)&0x0F);
             uint8_t Rd = 16+d;
             printf("LDI R%d, 0x%02X\n",Rd, k);
+        }else if((instruction->op16&0xFF00)==0x9700){
+            uint8_t Rd = ((instruction->op16>>4)&0x03);
+            Rd = 24+Rd*2;
+        
+            uint8_t k = ((instruction->op16>>2)&0x30)| instruction->op16&0x0F;
+
+            printf("SBIW R%d, %02X\n", Rd, k);
         }else if((instruction->op16 & 0xF000)==0x9000){
             uint8_t Rd = ((instruction->op16>>4)&0x1F);
             printf("LD R%d,x+\n", Rd);
@@ -73,14 +80,6 @@ int main()
                 k|=0x80;
             }
             printf("BRNE %d\n",k);
-        }else if((instruction->op16&0xFF00)==0x9700){
-            printf("hola");
-            uint8_t Rd = ((instruction->op16>>4)&0x03);
-            Rd = 24+Rd*2;
-        
-            //uint8_t k = ((instruction->op16>>4)&0x03)| instruction->op16&0x0F;
-
-            //printf("SBIW R%d, %02X\n", Rd, k);
         }else if((instruction->op16&0xF000) == 0xD000){
             int16_t k = (instruction->op16&0x0FFF);
 
@@ -88,11 +87,43 @@ int main()
                 k|=0xF000;
             }
             printf("RCALL %d\n", k);
+        }else if((instruction->op16&0xFC00)==0x0800){
+            uint8_t Rd = instruction->type2.d5;
+            uint8_t Rr = (instruction->type2.r1<<4)|instruction->type2.r4;
+            printf("SBC R%d, R%d\n", Rd, Rr);
+        }else if((instruction->op16 & 0xFC00) == 0x1C00){
+            uint8_t Rd = instruction->type2.d5;
+            uint8_t Rr = (instruction->type2.r1<<4)| instruction->type2.r4;
+
+            printf("ADC R%d, R%d\n",Rd,Rr);
+        }else if((instruction->op16&0xFF00) == 0x0100){
+            uint8_t Rd = ((instruction->op16>>4) & 0x0F)*2;
+            uint8_t Rr = (instruction->op16 & 0x0F)*2;
+
+            printf("MOVW R%d, R%d\n", Rd, Rr);
+        }else if((instruction->op16&0xF000)== 0x5000){
+            uint8_t Rd = (instruction->op16>>4&0x0F);
+            Rd+=16;
+            uint8_t k = ((instruction->op16>>4)&0xF0)|(instruction->op16&0x0F);
+            
+            printf("SUBI R%d, %02X\n", Rd, k);
+        }else if((instruction->op16&0xF000)==0x6000){
+            uint8_t Rd = (instruction->op16>>4&0x0F);
+            Rd+=16;
+
+            uint8_t k = (instruction->op16>>4&0xF0)|(instruction->op16&0x0F);
+
+            printf("ORI R%d, %02X\n", Rd, k);
+        }else if((instruction->op16&0xFC00)==0x1400){
+            uint8_t Rd = instruction->type2.d5;
+            uint8_t Rr = (instruction->type2.r1<<4) | (instruction->type2.r4); 
+            printf("CP R%d, R%d\n", Rd, Rr);
         }
         else
         {
             printf("unknown\n");
         }
+        
     }
     return 0;
 }
