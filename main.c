@@ -16,6 +16,7 @@ const uint16_t inst16_table[] = {
 
 enum{
     e_NOP,
+
 };
 
 
@@ -48,6 +49,30 @@ int main()
         if (instruction->op16 == inst16_table[e_NOP])
         {
             printf("NOP\n");
+        }else if((instruction->op16 & 0xFC00) == 0x2400){
+            uint8_t Rd = instruction->type2.d5;
+            uint8_t Rr = (instruction->type2.r1<<4)|instruction->type2.r4;
+
+            printf("EOR R%d, R%d\n",Rd,Rr);
+        }else if((instruction->op16 & 0xF000)==0xE000){
+            uint8_t k = ((instruction->op16>>4)& 0xF0)|(instruction->op16&0x0F);
+            uint8_t d = ((instruction->op16>>4)&0x0F);
+            uint8_t Rd = 16+d;
+            printf("LDI R%d, 0x%02X\n",Rd, k);
+        }else if((instruction->op16 & 0xF000)==0x9000){
+            uint8_t Rd = ((instruction->op16>>4)&0x1F);
+            printf("LD R%d,x+\n", Rd);
+        }else if((instruction->op16&0xF000)==0x3000){
+            uint8_t Rd = (instruction->op16&0xF0);
+            uint8_t k = ((instruction->op16>>4)&0xF0)|(instruction->op16&0x0F); 
+            Rd+=16;
+            printf("CPI R%d, 0x%02X\n",Rd,k);
+        }else if((instruction->op16&0xFC07)==0xF401){
+            int8_t k = (instruction->op16&0x03F8)>>3;
+            if(k&0x40){
+                k|=0x80;
+            }
+            printf("BRNE %d\n",k);
         }
         else
         {
