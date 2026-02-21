@@ -6,10 +6,10 @@ Prac 2 - AVR ASM OpCode Decoder
 #include <inttypes.h>
 
 const uint8_t flash_mem[] ={ 
-    0x00, 0x24, 0xA0, 0xE0, 0xB2, 0xE0, 0x0D, 0x91, 0x00, 0x30, 0xE9, 0xF7, 0x11, 0x97, 0xC0, 0xE0, 0xC4, 0xD2, 
-    0xE0, 0x09, 0x91, 0x1E, 0x91, 0x01, 0x17, 0x51, 0xF4, 0x0A, 0x2F, 0x0A, 0x95, 0x1C, 0x2F, 0x65, 0x01, 0x17,
-    0xB9, 0xF7, 0x0B, 0x2F, 0x1D, 0x2F, 0x01, 0x17, 0x99, 0xF7, 0x03, 0x94, 0x00, 0x00 };
-
+     0x00, 0x24, 0xA0, 0xE0, 0xB2, 0xE0, 0x0D, 0x91, 0x00, 0x30, 0xE9, 0xF7, 0x11, 0x97, 0xC0, 0xE0,/* 0xC4,*/ 
+    0xD2, 0xE0, 0x09, 0x91, 0x1E, 0x91, 0x01, 0x17, 0x51, 0xF4, 0x0A, 0x2F, 0x0A, 0x95, 0x1C, 0x2F,/* 0x65,*/ 
+    0x01, 0x17, 0xB9, 0xF7, 0x0B, 0x2F, 0x1D, 0x2F, 0x01, 0x17, 0x99, 0xF7, 0x03, 0x94, 0x00, 0x00 };
+ 
 const uint16_t inst16_table[] = {
   0x0, //NOP
   0x2400, //CLR - EOR
@@ -112,7 +112,7 @@ int main()
             printf("NOP\n");
         }else if((instruction->op16 & 0xFC00) == inst16_table[e_CLR]){
             uint8_t Rd = instruction->type2.d5;
-            uint8_t Rr = instruction->type2.r4 | instruction->type2.r1;
+            uint8_t Rr = instruction->type2.r4 | instruction->type2.r1<<4;
 
             if(Rd ==Rr){
                 printf("CLR R%d\n",Rd);
@@ -154,9 +154,9 @@ int main()
             uint8_t Rd = instruction->type5.d2;
             Rd = 2*Rd+24;
 
-            uint8_t k = instruction->type5.k4 | instruction->type5.k2;
+            uint8_t k = instruction->type5.k4 | instruction->type5.k2<<4;
 
-            printf("SBIW R%d, %02X\n", Rd, k); //*** */ */
+            printf("SBIW R%d, %02X\n", Rd, k);
 
         }else if((instruction->op16&0xF000) == inst16_table[e_RECALL]){
             int16_t k = instruction->type6.k12;
@@ -169,13 +169,13 @@ int main()
 
         }else if((instruction->op16&0xFC00)==inst16_table[e_SBC]){
             uint8_t Rd = instruction->type2.d5;
-            uint8_t Rr = (instruction->type2.r1)|instruction->type2.r4;
+            uint8_t Rr = (instruction->type2.r1<<4)|instruction->type2.r4;
 
             printf("SBC R%d, R%d\n", Rd, Rr);
 
         }else if((instruction->op16 & 0xFC00) == inst16_table[e_ADC]){
             uint8_t Rd = instruction->type2.d5;
-            uint8_t Rr = (instruction->type2.r1)| instruction->type2.r4;
+            uint8_t Rr = (instruction->type2.r1<<4)| instruction->type2.r4;
 
             printf("ADC R%d, R%d\n",Rd,Rr);
 
@@ -206,13 +206,13 @@ int main()
 
         }else if((instruction->op16&0xFC00)==inst16_table[e_CP]){
             uint8_t Rd = instruction->type2.d5;
-            uint8_t Rr = (instruction->type2.r4) | (instruction->type2.r1); 
+            uint8_t Rr = (instruction->type2.r4) | (instruction->type2.r1<<4); 
 
             printf("CP R%d, R%d\n", Rd, Rr);
 
         }else if((instruction->op16&0xFC00)==inst16_table[e_MOV]){
             uint8_t Rd = instruction->type2.d5;
-            uint8_t Rr = (instruction->type2.r4) | instruction->type2.r1;
+            uint8_t Rr = (instruction->type2.r4) | instruction->type2.r1<<4;
 
             printf("MOV R%d, R%d\n",Rd, Rr);
         }else if((instruction->op16&0xFE00)==inst16_table[e_INC]){
